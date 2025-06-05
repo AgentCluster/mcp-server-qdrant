@@ -1,13 +1,11 @@
-import logging
 import uuid
 from typing import Any, Dict, Optional
-
 from pydantic import BaseModel
 from qdrant_client import AsyncQdrantClient, models
-
 from mcp_server_qdrant.embeddings.base import EmbeddingProvider
+from mcp_server_qdrant.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 Metadata = Dict[str, Any]
 
@@ -18,6 +16,16 @@ class Entry(BaseModel):
     """
 
     content: str
+    source_id: Optional[str] = None
+    url: Optional[str] = None
+    title: Optional[str] = None
+    docAuthor: Optional[str] = None
+    description: Optional[str] = None
+    docSource: Optional[str] = None
+    published: Optional[str] = None
+    wordCount: Optional[int] = None
+    tokenCountEstimate: Optional[str] = None
+    text: Optional[str] = None
     metadata: Optional[Metadata] = None
 
 
@@ -63,6 +71,7 @@ class QdrantConnector:
         :param collection_name: The name of the collection to store the information in, optional. If not provided,
                                 the default collection is used.
         """
+        logger.debug(f"store called. Entry: {entry}, Collection: {collection_name}")
         collection_name = collection_name or self._default_collection_name
         assert collection_name is not None
         await self._ensure_collection_exists(collection_name)
@@ -71,20 +80,31 @@ class QdrantConnector:
         # ToDo: instead of embedding text explicitly, use `models.Document`,
         # it should unlock usage of server-side inference.
         embeddings = await self._embedding_provider.embed_documents([entry.content])
+        logger.debug(f"store embedding result (first 5 values): {embeddings[0][:5] if embeddings else None}")
 
-        # Add to Qdrant
-        vector_name = self._embedding_provider.get_vector_name()
-        payload = {"document": entry.content, "metadata": entry.metadata}
+        payload = {
+            "source_id": entry.source_id,
+            "url": entry.url,
+            "title": entry.title,
+            "docAuthor": entry.docAuthor,
+            "description": entry.description,
+            "docSource": entry.docSource,
+            "published": entry.published,
+            "wordCount": entry.wordCount,
+            "tokenCountEstimate": entry.tokenCountEstimate,
+            "text": entry.text,
+        }
         await self._client.upsert(
             collection_name=collection_name,
             points=[
                 models.PointStruct(
                     id=uuid.uuid4().hex,
-                    vector={vector_name: embeddings[0]},
+                    #vector={vector_name: embeddings[0]},
                     payload=payload,
                 )
             ],
         )
+        logger.debug(f"store completed. Collection: {collection_name}, Payload: {payload}")
 
     async def search(
         self, query: str, *, collection_name: Optional[str] = None, limit: int = 10
@@ -97,30 +117,40 @@ class QdrantConnector:
         :param limit: The maximum number of entries to return.
         :return: A list of entries found.
         """
+        logger.debug(f"search called. Query: {query}, Collection: {collection_name}, Limit: {limit}")
         collection_name = collection_name or self._default_collection_name
         collection_exists = await self._client.collection_exists(collection_name)
         if not collection_exists:
+            logger.debug(f"search: Collection not found: {collection_name}")
             return []
 
         # Embed the query
-        # ToDo: instead of embedding text explicitly, use `models.Document`,
-        # it should unlock usage of server-side inference.
-
         query_vector = await self._embedding_provider.embed_query(query)
-        vector_name = self._embedding_provider.get_vector_name()
+        logger.debug(f"query_vector type: {type(query_vector)}")
+        logger.debug(f"query_vector value: {query_vector}")
+        logger.debug(f"search embedding result (first 5 values): {query_vector[:5] if query_vector else None}")
 
         # Search in Qdrant
         search_results = await self._client.query_points(
             collection_name=collection_name,
             query=query_vector,
-            using=vector_name,
             limit=limit,
         )
 
+        logger.debug(f"search results: {len(search_results.points)} found.")
         return [
             Entry(
-                content=result.payload["document"],
-                metadata=result.payload.get("metadata"),
+                content=result.payload.get("text"),
+                source_id=result.payload.get("source_id"),
+                url=result.payload.get("url"),
+                title=result.payload.get("title"),
+                docAuthor=result.payload.get("docAuthor"),
+                description=result.payload.get("description"),
+                docSource=result.payload.get("docSource"),
+                published=result.payload.get("published"),
+                wordCount=result.payload.get("wordCount"),
+                tokenCountEstimate=result.payload.get("tokenCountEstimate"),
+                text=result.payload.get("text"),
             )
             for result in search_results.points
         ]
@@ -136,13 +166,10 @@ class QdrantConnector:
             vector_size = self._embedding_provider.get_vector_size()
 
             # Use the vector name as defined in the embedding provider
-            vector_name = self._embedding_provider.get_vector_name()
             await self._client.create_collection(
                 collection_name=collection_name,
-                vectors_config={
-                    vector_name: models.VectorParams(
+                vectors_config=models.VectorParams(
                         size=vector_size,
                         distance=models.Distance.COSINE,
                     )
-                },
             )

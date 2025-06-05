@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+
+  mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp-server-qdrant
+    ports:
+      - "8000:80"
+    environment:
+      - QDRANT_URL=https://90a2477a-5f42-4255-8530-9771d3b0a3ad.eu-west-1-0.aws.cloud.qdrant.io
+      - QDRANT_API_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.tFtMl1hd8l7PBRnfsDeg_Y3g7Ly3obZNanWvI1JFcU8
+      - COLLECTION_NAME=karar
+      - EMBEDDING_MODEL=emrecan/bert-base-turkish-cased-mean-nli-stsb-tr
+      - EMBEDDING_PROVIDER=sentence-transformers
+      # Use system CA certificates
+      - REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+      - CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
+      # Logging environment variables
+      - PYTHONUNBUFFERED=1
+      - PYTHONIOENCODING=utf-8
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+      

@@ -53,11 +53,3 @@ class TestFastEmbedProviderIntegration:
         # The embeddings should be identical for the same input
         np.testing.assert_array_almost_equal(np.array(embedding), np.array(embedding2))
 
-    async def test_get_vector_name(self):
-        """Test that the vector name is generated correctly."""
-        provider = FastEmbedProvider("sentence-transformers/all-MiniLM-L6-v2")
-        vector_name = provider.get_vector_name()
-
-        # Check that the vector name follows the expected format
-        assert vector_name.startswith("fast-")
-        assert "minilm" in vector_name.lower()

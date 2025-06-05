@@ -1,0 +1,17 @@
+{
+    "mcpServers": {
+      "qdrant2": {
+          "command": "uvx",
+          "args": [" --reinstall", " --no-cache", "/Users/onur.hosgor/Repositories/mcp-server-qdrant"],
+          "env": {
+            "QDRANT_URL": "https://90a2477a-5f42-4255-8530-9771d3b0a3ad.eu-west-1-0.aws.cloud.qdrant.io",
+            "COLLECTION_NAME": "text",
+            "QDRANT_API_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.tFtMl1hd8l7PBRnfsDeg_Y3g7Ly3obZNanWvI1JFcU8",
+            "EMBEDDING_MODEL": "emrecan/bert-base-turkish-cased-mean-nli-stsb-tr",
+            "EMBEDDING_PROVIDER": "sentence-transformers",
+            "TOOL_FIND_DESCRIPTION": "When a question is asked in the field of law and you need precedent cases, use this database. Direct your queries here."
+      }
+      }
+    }
+  }
+  

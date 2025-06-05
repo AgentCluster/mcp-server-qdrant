@@ -1,6 +1,7 @@
 import json
-import logging
+import os
 from typing import Any, List
+from mcp_server_qdrant.logger import get_logger
 
 from mcp.server.fastmcp import Context, FastMCP
 
@@ -12,8 +13,7 @@ from mcp_server_qdrant.settings import (
     ToolSettings,
 )
 
-logger = logging.getLogger(__name__)
-
+logger = get_logger(__name__)
 
 # FastMCP is an alternative interface for declaring the capabilities
 # of the server. Its API is based on FastAPI.
@@ -31,6 +31,18 @@ class QdrantMCPServer(FastMCP):
         instructions: str | None = None,
         **settings: Any,
     ):
+
+        host = os.environ.get("HOST", "0.0.0.0")
+        port = int(os.environ.get("PORT", "80"))
+        
+        # Override any existing settings with our host/port
+        settings.update({
+            "host": host,
+            "port": port,
+        })
+        
+
+
         self.tool_settings = tool_settings
         self.qdrant_settings = qdrant_settings
         self.embedding_provider_settings = embedding_provider_settings
@@ -59,30 +71,30 @@ class QdrantMCPServer(FastMCP):
         """
         Register the tools in the server.
         """
-
         async def store(
             ctx: Context,
             information: str,
             collection_name: str,
-            # The `metadata` parameter is defined as non-optional, but it can be None.
-            # If we set it to be optional, some of the MCP clients, like Cursor, cannot
-            # handle the optional parameter correctly.
             metadata: Metadata = None,  # type: ignore
         ) -> str:
-            """
-            Store some information in Qdrant.
-            :param ctx: The context for the request.
-            :param information: The information to store.
-            :param metadata: JSON metadata to store with the information, optional.
-            :param collection_name: The name of the collection to store the information in, optional. If not provided,
-                                    the default collection is used.
-            :return: A message indicating that the information was stored.
-            """
+            logger.debug(f"store tool called. information: {information}, collection_name: {collection_name}, metadata: {metadata}")
             await ctx.debug(f"Storing information {information} in Qdrant")
-
-            entry = Entry(content=information, metadata=metadata)
-
+            entry = Entry(
+                content=information,
+                source_id=metadata.get("source_id") if metadata else None,
+                url=metadata.get("url") if metadata else None,
+                title=metadata.get("title") if metadata else None,
+                docAuthor=metadata.get("docAuthor") if metadata else None,
+                description=metadata.get("description") if metadata else None,
+                docSource=metadata.get("docSource") if metadata else None,
+                published=metadata.get("published") if metadata else None,
+                wordCount=metadata.get("wordCount") if metadata else None,
+                tokenCountEstimate=metadata.get("tokenCountEstimate") if metadata else None,
+                text=metadata.get("text") if metadata else None,
+                metadata=metadata,
+            )
             await self.qdrant_connector.store(entry, collection_name=collection_name)
+            logger.debug(f"store tool completed. information: {information}, collection_name: {collection_name}")
             if collection_name:
                 return f"Remembered: {information} in collection {collection_name}"
             return f"Remembered: {information}"
@@ -93,41 +105,46 @@ class QdrantMCPServer(FastMCP):
             metadata: Metadata = None,  # type: ignore
         ) -> str:
             assert self.qdrant_settings.collection_name is not None
+            logger.debug(f"store_with_default_collection called. information: {information}, metadata: {metadata}")
             return await store(
                 ctx, information, self.qdrant_settings.collection_name, metadata
             )
+
+        async def sanitize_input(value):
+            from collections.abc import Awaitable
+            if isinstance(value, Awaitable):
+                return await value
+            return value
 
         async def find(
             ctx: Context,
             query: str,
             collection_name: str,
         ) -> List[str]:
-            """
-            Find memories in Qdrant.
-            :param ctx: The context for the request.
-            :param query: The query to use for the search.
-            :param collection_name: The name of the collection to search in, optional. If not provided,
-                                    the default collection is used.
-            :return: A list of entries found.
-            """
+            
+            logger.debug(f"find tool called. query type: {type(query)}")
+            query = await sanitize_input(query)
+            logger.debug(f"find tool called. query type2: {type(query)}")
+            logger.debug(f"find tool called. query: {query}, collection_name: {collection_name}")
             await ctx.debug(f"Finding results for query {query}")
             if collection_name:
                 await ctx.debug(
                     f"Overriding the collection name with {collection_name}"
                 )
-
             entries = await self.qdrant_connector.search(
                 query,
                 collection_name=collection_name,
                 limit=self.qdrant_settings.search_limit,
             )
             if not entries:
+                logger.debug(f"find tool: No result found. query: {query}")
                 return [f"No information found for the query '{query}'"]
             content = [
                 f"Results for the query '{query}'",
             ]
             for entry in entries:
                 content.append(self.format_entry(entry))
+            logger.debug(f"find tool: {len(entries)} results found. query: {query}")
             return content
 
         async def find_with_default_collection(
@@ -135,6 +152,7 @@ class QdrantMCPServer(FastMCP):
             query: str,
         ) -> List[str]:
             assert self.qdrant_settings.collection_name is not None
+            logger.debug(f"find_with_default_collection called. query: {query}")
             return await find(ctx, query, self.qdrant_settings.collection_name)
 
         # Register the tools depending on the configuration
