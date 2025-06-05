@@ -108,7 +108,7 @@ class QdrantConnector:
 
     async def search(
         self, query: str, *, collection_name: Optional[str] = None, limit: int = 10
-    ) -> list[Entry]:
+    ) -> list[Dict[str, Any]]:
         """
         Find points in the Qdrant collection. If there are no entries found, an empty list is returned.
         :param query: The query to use for the search.
@@ -139,19 +139,16 @@ class QdrantConnector:
 
         logger.debug(f"search results: {len(search_results.points)} found.")
         return [
-            Entry(
-                content=result.payload.get("text"),
-                source_id=result.payload.get("source_id"),
-                url=result.payload.get("url"),
-                title=result.payload.get("title"),
-                docAuthor=result.payload.get("docAuthor"),
-                description=result.payload.get("description"),
-                docSource=result.payload.get("docSource"),
-                published=result.payload.get("published"),
-                wordCount=result.payload.get("wordCount"),
-                tokenCountEstimate=result.payload.get("tokenCountEstimate"),
-                text=result.payload.get("text"),
-            )
+            {
+                "id": result.payload.get("id"),
+                "karar_no": result.payload.get("karar_no"),
+                "karar_tarihi": result.payload.get("karar_tarihi"),
+                "mahkeme": result.payload.get("daire"),
+                "esas_no": result.payload.get("esas_no"),
+                "durum": result.payload.get("durum"),
+                "imported_at": result.payload.get("imported_at"),
+                "text": result.payload.get("text")
+            }
             for result in search_results.points
         ]
 

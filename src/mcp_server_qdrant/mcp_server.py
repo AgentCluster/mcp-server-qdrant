@@ -139,13 +139,8 @@ class QdrantMCPServer(FastMCP):
             if not entries:
                 logger.debug(f"find tool: No result found. query: {query}")
                 return [f"No information found for the query '{query}'"]
-            content = [
-                f"Results for the query '{query}'",
-            ]
-            for entry in entries:
-                content.append(self.format_entry(entry))
             logger.debug(f"find tool: {len(entries)} results found. query: {query}")
-            return content
+            return entries
 
         async def find_with_default_collection(
             ctx: Context,
