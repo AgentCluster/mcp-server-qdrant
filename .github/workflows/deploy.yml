@@ -12,7 +12,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # ✅ Docker config for Kaniko in /tmp instead of /kaniko
     - name: Set up Docker auth for Kaniko
       run: |
         mkdir -p /tmp/kaniko/.docker
@@ -25,7 +24,6 @@ jobs:
           }
         }' > /tmp/kaniko/.docker/config.json
 
-    # ✅ Mount /tmp/kaniko/.docker instead of /kaniko
     - name: Build and Push Docker image with Kaniko
       uses: addnab/docker-run-action@v3
       with:
