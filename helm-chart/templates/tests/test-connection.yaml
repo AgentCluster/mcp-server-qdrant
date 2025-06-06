@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "mcp-server-qdrant.fullname" . }}-test-connection"
+  labels:
+    {{- include "mcp-server-qdrant.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "mcp-server-qdrant.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never
