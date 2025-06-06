@@ -36,7 +36,7 @@ jobs:
         run: >
           /kaniko/executor
           --context=/workspace
-          --dockerfile=/workspace/docker/Dockerfile
+          --dockerfile=/workspace/Dockerfile
           --destination=${{ secrets.REGISTRY_URL }}/avukatcloud/nomika:${{ github.event.repository.name }}-${{ github.sha }}
           --skip-tls-verify=true
 
