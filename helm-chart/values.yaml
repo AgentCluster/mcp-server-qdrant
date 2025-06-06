@@ -19,7 +19,7 @@ env:
   QDRANT_URL: http://qdrant.qdrant.svc.cluster.local:6333
   QDRANT_API_KEY: ""
   COLLECTION_NAME: karar
-  EMBEDDING_MODEL: emrecan/bert-base-turkish-cased-mean-nli-stsb-tr
+  EMBEDDING_MODEL: "emrecan/bert-base-turkish-cased-mean-nli-stsb-tr"
   EMBEDDING_PROVIDER: sentence-transformers
   REQUESTS_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
   CURL_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
