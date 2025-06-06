@@ -17,7 +17,7 @@ jobs:
         mkdir -p /tmp/kaniko/.docker
         echo '{
           "auths": {
-            "${{ secrets.REGISTRY_URL }}": {
+            "https://index.docker.io/v1/": {
               "username": "${{ secrets.REGISTRY_USERNAME }}",
               "password": "${{ secrets.REGISTRY_PASSWORD }}"
             }
@@ -35,7 +35,7 @@ jobs:
           /kaniko/executor
           --context=/workspace
           --dockerfile=/workspace/Dockerfile
-          --destination=avukatcloud/nomika:${{ github.event.repository.name }}-${{ github.sha }}
+          --destination=avukatcloud/nomika:${{ github.event.repository.name }}-${{ github.run_number }}
           --skip-tls-verify=true
 
     - name: Install kubectl
@@ -63,4 +63,4 @@ jobs:
         helm upgrade --install ${{ github.event.repository.name }} ./helm-chart \
           --namespace default \
           --set image.repository=avukatcloud/nomika \
-          --set image.tag=${{ github.event.repository.name }}-${{ github.sha }}
+          --set image.tag=${{ github.event.repository.name }}-${{ github.run_number }}
