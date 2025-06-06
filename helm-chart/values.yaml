@@ -16,15 +16,15 @@ nameOverride: ""
 fullnameOverride: ""
 
 env: 
-  QDRANT_URL: http://qdrant.qdrant.svc.cluster.local:6333
+  QDRANT_URL: "http://qdrant.qdrant.svc.cluster.local:6333"
   QDRANT_API_KEY: ""
-  COLLECTION_NAME: karar
+  COLLECTION_NAME: "karar"
   EMBEDDING_MODEL: "emrecan/bert-base-turkish-cased-mean-nli-stsb-tr"
-  EMBEDDING_PROVIDER: sentence-transformers
-  REQUESTS_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
-  CURL_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
+  EMBEDDING_PROVIDER: "sentence-transformers"
+  REQUESTS_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
+  CURL_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
   PYTHONUNBUFFERED: "1"
-  PYTHONIOENCODING: utf-8
+  PYTHONIOENCODING: "utf-8"
 
 serviceAccount:
   # Specifies whether a service account should be created
