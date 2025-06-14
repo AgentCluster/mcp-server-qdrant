@@ -19,12 +19,15 @@ env:
   QDRANT_URL: "http://qdrant.qdrant.svc.cluster.local:6333"
   QDRANT_API_KEY: ""
   COLLECTION_NAME: "karar"
-  EMBEDDING_MODEL: "emrecan/bert-base-turkish-cased-mean-nli-stsb-tr"
-  EMBEDDING_PROVIDER: "sentence-transformers"
+  EMBEDDING_MODEL: "text-embedding-004"
+  EMBEDDING_PROVIDER: "gemini-transformer"
+  GEMINI_API_KEY: ""
   REQUESTS_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
   CURL_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
   PYTHONUNBUFFERED: "1"
   PYTHONIOENCODING: "utf-8"
+  QDRANT_SEARCH_LIMIT: "100"
+  QDRANT_READ_ONLY: "true"
 
 serviceAccount:
   # Specifies whether a service account should be created

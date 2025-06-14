@@ -17,5 +17,9 @@ def create_embedding_provider(settings: EmbeddingProviderSettings) -> EmbeddingP
         from mcp_server_qdrant.embeddings.sentence_transformens import SentenceTransformersProvider
 
         return SentenceTransformersProvider(settings.model_name)
+    elif settings.provider_type == EmbeddingProviderType.GEMINI_TRANSFORMER:
+        from mcp_server_qdrant.embeddings.gemini_transformer import GeminiTransformerProvider
+
+        return GeminiTransformerProvider(settings.model_name)
     else:
         raise ValueError(f"Unsupported embedding provider: {settings.provider_type}")

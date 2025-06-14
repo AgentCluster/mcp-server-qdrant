@@ -33,6 +33,14 @@ It acts as a semantic memory layer on top of the Qdrant database.
      - `collection_name` (string): Name of the collection to store the information in. This field is required if there are no default collection name.
                                    If there is a default collection name, this field is not enabled.
    - Returns: Information stored in the Qdrant database as separate messages
+3. `qdrant-find-by-metadata`
+   - Find vectors by metadata key-value pairs
+   - Input:
+     - `metadata_key` (string): The metadata key to search for (e.g., "mahkeme", "durum", "karar_no")
+     - `metadata_value` (string): The metadata value to match
+     - `collection_name` (string): Name of the collection to search in. This field is required if there are no default collection name.
+                                   If there is a default collection name, this field is not enabled.
+   - Returns: All vectors that have the specified metadata key-value pair
 
 ## Environment Variables
 
@@ -48,6 +56,9 @@ The configuration of the server is done using environment variables:
 | `EMBEDDING_MODEL`        | Name of the embedding model to use                                  | `sentence-transformers/all-MiniLM-L6-v2`                          |
 | `TOOL_STORE_DESCRIPTION` | Custom description for the store tool                               | See default in [`settings.py`](src/mcp_server_qdrant/settings.py) |
 | `TOOL_FIND_DESCRIPTION`  | Custom description for the find tool                                | See default in [`settings.py`](src/mcp_server_qdrant/settings.py) |
+| `TOOL_FIND_BY_METADATA_DESCRIPTION` | Custom description for the metadata search tool              | See default in [`settings.py`](src/mcp_server_qdrant/settings.py) |
+| `QDRANT_SEARCH_LIMIT`    | Maximum number of results to return in search operations            | `10`                                                              |
+| `QDRANT_READ_ONLY`       | Enable read-only mode (disables store operations)                   | `false`                                                           |
 
 Note: You cannot provide both `QDRANT_URL` and `QDRANT_LOCAL_PATH` at the same time.
 

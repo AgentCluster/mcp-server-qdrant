@@ -14,6 +14,12 @@ DEFAULT_TOOL_FIND_DESCRIPTION = (
     " - Access memories for further analysis \n"
     " - Get some personal information about the user"
 )
+DEFAULT_TOOL_FIND_BY_METADATA_DESCRIPTION = (
+    "Find specific vectors in Qdrant by metadata key-value pairs. Use this tool when you need to: \n"
+    " - Filter results by specific metadata fields like 'mahkeme', 'durum', 'karar_no', etc. \n"
+    " - Find all documents that have a specific metadata value \n"
+    " - Search for documents by their properties rather than content"
+)
 
 
 class ToolSettings(BaseSettings):
@@ -28,6 +34,10 @@ class ToolSettings(BaseSettings):
     tool_find_description: str = Field(
         default=DEFAULT_TOOL_FIND_DESCRIPTION,
         validation_alias="TOOL_FIND_DESCRIPTION",
+    )
+    tool_find_by_metadata_description: str = Field(
+        default=DEFAULT_TOOL_FIND_BY_METADATA_DESCRIPTION,
+        validation_alias="TOOL_FIND_BY_METADATA_DESCRIPTION",
     )
 
 

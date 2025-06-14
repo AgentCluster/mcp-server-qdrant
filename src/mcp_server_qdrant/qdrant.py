@@ -152,6 +152,59 @@ class QdrantConnector:
             for result in search_results.points
         ]
 
+    async def search_by_metadata(
+        self, metadata_key: str, metadata_value: str, *, collection_name: Optional[str] = None, limit: int = 10
+    ) -> list[Dict[str, Any]]:
+        """
+        Find points in the Qdrant collection by metadata key-value pair. If there are no entries found, an empty list is returned.
+        :param metadata_key: The metadata key to search for.
+        :param metadata_value: The metadata value to match.
+        :param collection_name: The name of the collection to search in, optional. If not provided,
+                               the default collection is used.
+        :param limit: The maximum number of entries to return.
+        :return: A list of entries found.
+        """
+        logger.debug(f"search_by_metadata called. Key: {metadata_key}, Value: {metadata_value}, Collection: {collection_name}, Limit: {limit}")
+        collection_name = collection_name or self._default_collection_name
+        collection_exists = await self._client.collection_exists(collection_name)
+        if not collection_exists:
+            logger.debug(f"search_by_metadata: Collection not found: {collection_name}")
+            return []
+
+        # Create filter condition for metadata search
+        filter_condition = models.Filter(
+            must=[
+                models.FieldCondition(
+                    key=metadata_key,
+                    match=models.MatchValue(value=metadata_value)
+                )
+            ]
+        )
+
+        # Search in Qdrant with filter
+        search_results = await self._client.scroll(
+            collection_name=collection_name,
+            scroll_filter=filter_condition,
+            limit=limit,
+            with_payload=True,
+            with_vectors=False,
+        )
+
+        logger.debug(f"search_by_metadata results: {len(search_results[0])} found.")
+        return [
+            {
+                "id": result.payload.get("id"),
+                "karar_no": result.payload.get("karar_no"),
+                "karar_tarihi": result.payload.get("karar_tarihi"),
+                "mahkeme": result.payload.get("daire"),
+                "esas_no": result.payload.get("esas_no"),
+                "durum": result.payload.get("durum"),
+                "imported_at": result.payload.get("imported_at"),
+                "text": result.payload.get("text")
+            }
+            for result in search_results[0]
+        ]
+
     async def _ensure_collection_exists(self, collection_name: str):
         """
         Ensure that the collection exists, creating it if necessary.

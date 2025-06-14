@@ -150,6 +150,39 @@ class QdrantMCPServer(FastMCP):
             logger.debug(f"find_with_default_collection called. query: {query}")
             return await find(ctx, query, self.qdrant_settings.collection_name)
 
+        async def find_by_metadata(
+            ctx: Context,
+            metadata_key: str,
+            metadata_value: str,
+            collection_name: str,
+        ) -> List[str]:
+            logger.debug(f"find_by_metadata tool called. key: {metadata_key}, value: {metadata_value}, collection_name: {collection_name}")
+            await ctx.debug(f"Finding results by metadata {metadata_key}={metadata_value}")
+            if collection_name:
+                await ctx.debug(
+                    f"Using collection: {collection_name}"
+                )
+            entries = await self.qdrant_connector.search_by_metadata(
+                metadata_key,
+                metadata_value,
+                collection_name=collection_name,
+                limit=self.qdrant_settings.search_limit,
+            )
+            if not entries:
+                logger.debug(f"find_by_metadata tool: No result found. key: {metadata_key}, value: {metadata_value}")
+                return [f"No information found for metadata {metadata_key}='{metadata_value}'"]
+            logger.debug(f"find_by_metadata tool: {len(entries)} results found. key: {metadata_key}, value: {metadata_value}")
+            return entries
+
+        async def find_by_metadata_with_default_collection(
+            ctx: Context,
+            metadata_key: str,
+            metadata_value: str,
+        ) -> List[str]:
+            assert self.qdrant_settings.collection_name is not None
+            logger.debug(f"find_by_metadata_with_default_collection called. key: {metadata_key}, value: {metadata_value}")
+            return await find_by_metadata(ctx, metadata_key, metadata_value, self.qdrant_settings.collection_name)
+
         # Register the tools depending on the configuration
 
         if self.qdrant_settings.collection_name:
@@ -158,11 +191,21 @@ class QdrantMCPServer(FastMCP):
                 name="qdrant-find",
                 description=self.tool_settings.tool_find_description,
             )
+            self.add_tool(
+                find_by_metadata_with_default_collection,
+                name="qdrant-find-by-metadata",
+                description=self.tool_settings.tool_find_by_metadata_description,
+            )
         else:
             self.add_tool(
                 find,
                 name="qdrant-find",
                 description=self.tool_settings.tool_find_description,
+            )
+            self.add_tool(
+                find_by_metadata,
+                name="qdrant-find-by-metadata",
+                description=self.tool_settings.tool_find_by_metadata_description,
             )
 
         if not self.qdrant_settings.read_only:

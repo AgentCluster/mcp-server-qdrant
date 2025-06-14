@@ -63,4 +63,5 @@ jobs:
         helm upgrade --install ${{ github.event.repository.name }} ./helm-chart \
           --namespace default \
           --set image.repository=avukatcloud/nomika \
-          --set image.tag=${{ github.event.repository.name }}-${{ github.run_number }}
+          --set image.tag=${{ github.event.repository.name }}-${{ github.run_number }} \
+          --set env.GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}

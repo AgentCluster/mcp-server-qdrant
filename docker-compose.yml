@@ -15,6 +15,9 @@ services:
       - COLLECTION_NAME=karar
       - EMBEDDING_MODEL=emrecan/bert-base-turkish-cased-mean-nli-stsb-tr
       - EMBEDDING_PROVIDER=sentence-transformers
+      # Search and access control settings
+      - QDRANT_SEARCH_LIMIT=100
+      - QDRANT_READ_ONLY=true
       # Use system CA certificates
       - REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
       - CURL_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
