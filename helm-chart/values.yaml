@@ -18,7 +18,7 @@ fullnameOverride: ""
 env: 
   QDRANT_URL: "http://qdrant.qdrant.svc.cluster.local:6333"
   QDRANT_API_KEY: ""
-  COLLECTION_NAME: "karar"
+  COLLECTION_NAME: "emsal_uyap"
   EMBEDDING_MODEL: "text-embedding-004"
   EMBEDDING_PROVIDER: "gemini-transformer"
   GEMINI_API_KEY: ""
