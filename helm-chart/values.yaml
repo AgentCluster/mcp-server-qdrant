@@ -28,6 +28,9 @@ env:
   PYTHONIOENCODING: "utf-8"
   QDRANT_SEARCH_LIMIT: "100"
   QDRANT_READ_ONLY: "true"
+  QDRANT_TIMEOUT: "30"
+  LOG_LEVEL: "INFO"
+  LOG_DIR: "/app/logs"
 
 serviceAccount:
   # Specifies whether a service account should be created

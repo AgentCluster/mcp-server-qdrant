@@ -59,6 +59,9 @@ The configuration of the server is done using environment variables:
 | `TOOL_FIND_BY_METADATA_DESCRIPTION` | Custom description for the metadata search tool              | See default in [`settings.py`](src/mcp_server_qdrant/settings.py) |
 | `QDRANT_SEARCH_LIMIT`    | Maximum number of results to return in search operations            | `10`                                                              |
 | `QDRANT_READ_ONLY`       | Enable read-only mode (disables store operations)                   | `false`                                                           |
+| `QDRANT_TIMEOUT`         | Timeout in seconds for Qdrant operations                            | `30`                                                              |
+| `LOG_LEVEL`              | Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)               | `INFO`                                                            |
+| `LOG_DIR`                | Directory path for log files                                         | `logs`                                                            |
 
 Note: You cannot provide both `QDRANT_URL` and `QDRANT_LOCAL_PATH` at the same time.
 

@@ -8,13 +8,14 @@ services:
       dockerfile: Dockerfile
     container_name: mcp-server-qdrant
     ports:
-      - "8000:80"
+      - "8001:80"
     environment:
-      - QDRANT_URL=https://90a2477a-5f42-4255-8530-9771d3b0a3ad.eu-west-1-0.aws.cloud.qdrant.io
-      - QDRANT_API_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.tFtMl1hd8l7PBRnfsDeg_Y3g7Ly3obZNanWvI1JFcU8
-      - COLLECTION_NAME=karar
-      - EMBEDDING_MODEL=emrecan/bert-base-turkish-cased-mean-nli-stsb-tr
-      - EMBEDDING_PROVIDER=sentence-transformers
+      - QDRANT_URL=http://host.docker.internal:6333
+      - QDRANT_API_KEY=a05cece8-7fce-4e60-972e-b28ece45cf3c
+      - COLLECTION_NAME=emsal_uyap
+      - EMBEDDING_MODEL=text-embedding-004
+      - EMBEDDING_PROVIDER=gemini-transformer
+      - GEMINI_API_KEY=AIzaSyCRgykLuJeSv-Qip6_Oh8Co0Y1sgfwnZvg
       # Search and access control settings
       - QDRANT_SEARCH_LIMIT=100
       - QDRANT_READ_ONLY=true
@@ -24,10 +25,18 @@ services:
       # Logging environment variables
       - PYTHONUNBUFFERED=1
       - PYTHONIOENCODING=utf-8
+      - LOG_LEVEL=DEBUG
+      - LOG_DIR=/app/logs
+      - QDRANT_TIMEOUT=30
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
     restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+      - ./:/app
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
       

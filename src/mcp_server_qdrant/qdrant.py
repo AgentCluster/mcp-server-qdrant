@@ -1,4 +1,5 @@
 import uuid
+import os
 from typing import Any, Dict, Optional
 from pydantic import BaseModel
 from qdrant_client import AsyncQdrantClient, models
@@ -53,7 +54,7 @@ class QdrantConnector:
         self._default_collection_name = collection_name
         self._embedding_provider = embedding_provider
         self._client = AsyncQdrantClient(
-            location=qdrant_url, api_key=qdrant_api_key, path=qdrant_local_path
+            location=qdrant_url, api_key=qdrant_api_key, path=qdrant_local_path, timeout=int(os.getenv("QDRANT_TIMEOUT", "30"))
         )
 
     async def get_collection_names(self) -> list[str]:
