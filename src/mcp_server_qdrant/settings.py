@@ -71,3 +71,5 @@ class QdrantSettings(BaseSettings):
     )
     search_limit: int = Field(default=10, validation_alias="QDRANT_SEARCH_LIMIT")
     read_only: bool = Field(default=False, validation_alias="QDRANT_READ_ONLY")
+    timeout: int = Field(default=30, validation_alias="QDRANT_TIMEOUT")
+    output_format: str = Field(default="formatted", validation_alias="QDRANT_OUTPUT_FORMAT")

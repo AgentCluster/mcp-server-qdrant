@@ -29,6 +29,7 @@ env:
   QDRANT_SEARCH_LIMIT: "10"
   QDRANT_READ_ONLY: "true"
   QDRANT_TIMEOUT: "60"
+  QDRANT_OUTPUT_FORMAT: "json"
   LOG_LEVEL: "INFO"
   LOG_DIR: "/app/logs"
 

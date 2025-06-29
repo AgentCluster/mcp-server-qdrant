@@ -60,6 +60,35 @@ class QdrantMCPServer(FastMCP):
 
         self.setup_tools()
 
+    def format_search_result(self, result: dict) -> str:
+        """
+        Format search result dictionary into a readable string.
+        """
+        formatted_parts = []
+        
+        if result.get("text"):
+            formatted_parts.append(f"Content: {result['text']}")
+        
+        if result.get("karar_no"):
+            formatted_parts.append(f"Karar No: {result['karar_no']}")
+            
+        if result.get("karar_tarihi"):
+            formatted_parts.append(f"Karar Tarihi: {result['karar_tarihi']}")
+            
+        if result.get("mahkeme"):
+            formatted_parts.append(f"Mahkeme: {result['mahkeme']}")
+            
+        if result.get("esas_no"):
+            formatted_parts.append(f"Esas No: {result['esas_no']}")
+            
+        if result.get("durum"):
+            formatted_parts.append(f"Durum: {result['durum']}")
+            
+        if result.get("id"):
+            formatted_parts.append(f"ID: {result['id']}")
+            
+        return "\n".join(formatted_parts) if formatted_parts else "No content available"
+
     def format_entry(self, entry: Entry) -> str:
         """
         Feel free to override this method in your subclass to customize the format of the entry.
@@ -140,7 +169,14 @@ class QdrantMCPServer(FastMCP):
                 logger.debug(f"find tool: No result found. query: {query}")
                 return [f"No information found for the query '{query}'"]
             logger.debug(f"find tool: {len(entries)} results found. query: {query}")
-            return entries
+            # Format results based on output format setting
+            if self.qdrant_settings.output_format == "json":
+                # Return as JSON strings for backward compatibility
+                return [json.dumps(entry) for entry in entries]
+            else:
+                # Return as formatted strings (default)
+                formatted_results = [self.format_search_result(entry) for entry in entries]
+                return formatted_results
 
         async def find_with_default_collection(
             ctx: Context,
@@ -172,7 +208,14 @@ class QdrantMCPServer(FastMCP):
                 logger.debug(f"find_by_metadata tool: No result found. key: {metadata_key}, value: {metadata_value}")
                 return [f"No information found for metadata {metadata_key}='{metadata_value}'"]
             logger.debug(f"find_by_metadata tool: {len(entries)} results found. key: {metadata_key}, value: {metadata_value}")
-            return entries
+            # Format results based on output format setting
+            if self.qdrant_settings.output_format == "json":
+                # Return as JSON strings for backward compatibility
+                return [json.dumps(entry) for entry in entries]
+            else:
+                # Return as formatted strings (default)
+                formatted_results = [self.format_search_result(entry) for entry in entries]
+                return formatted_results
 
         async def find_by_metadata_with_default_collection(
             ctx: Context,

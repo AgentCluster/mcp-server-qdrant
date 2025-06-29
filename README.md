@@ -60,6 +60,7 @@ The configuration of the server is done using environment variables:
 | `QDRANT_SEARCH_LIMIT`    | Maximum number of results to return in search operations            | `10`                                                              |
 | `QDRANT_READ_ONLY`       | Enable read-only mode (disables store operations)                   | `false`                                                           |
 | `QDRANT_TIMEOUT`         | Timeout in seconds for Qdrant operations                            | `30`                                                              |
+| `QDRANT_OUTPUT_FORMAT`   | Output format for search results ("formatted" or "json")            | `formatted`                                                       |
 | `LOG_LEVEL`              | Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)               | `INFO`                                                            |
 | `LOG_DIR`                | Directory path for log files                                         | `logs`                                                            |
 
