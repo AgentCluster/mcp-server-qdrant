@@ -26,9 +26,9 @@ env:
   CURL_CA_BUNDLE: "/etc/ssl/certs/ca-certificates.crt"
   PYTHONUNBUFFERED: "1"
   PYTHONIOENCODING: "utf-8"
-  QDRANT_SEARCH_LIMIT: "100"
+  QDRANT_SEARCH_LIMIT: "10"
   QDRANT_READ_ONLY: "true"
-  QDRANT_TIMEOUT: "30"
+  QDRANT_TIMEOUT: "60"
   LOG_LEVEL: "INFO"
   LOG_DIR: "/app/logs"
 
@@ -69,7 +69,7 @@ ingress:
     - host: qdrant.mcp.avukat.cloud
       paths:
         - path: /
-          pathType: Prefix
+          pathType: ImplementationSpecific
           port: 80
   tls: []
   #  - secretName: chart-example-tls
